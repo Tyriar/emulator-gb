@@ -1,0 +1,14 @@
+{
+  "name": "emulator-gba",
+  "version": "1.0.0",
+  "description": "An Game Boy Color emulator written in TypeScript.",
+  "main": "index.js",
+  "scripts": {
+    "watch": "tsc -p tsconfig.json -w"
+  },
+  "author": "Daniel Imms (http://www.growingwiththeweb.com)",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^3.9.3"
+  }
+}
