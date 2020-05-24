@@ -1,6 +1,6 @@
-# emulator-gba
+# emulator-gb
 
-A work in progress Game Boy Color emulator written in TypeScript for fun/educational purposes.
+A work in progress Game Boy emulator written in TypeScript for fun/educational purposes.
 
 ## References
 

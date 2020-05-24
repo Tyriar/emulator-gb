@@ -1,7 +1,8 @@
 {
-  "name": "emulator-gba",
+  "name": "emulator-gb",
   "version": "1.0.0",
-  "description": "An Game Boy Color emulator written in TypeScript.",
+  "private": true,
+  "description": "A Game Boy emulator",
   "main": "index.js",
   "scripts": {
     "watch": "tsc -p tsconfig.json -w"
