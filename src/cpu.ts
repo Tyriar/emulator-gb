@@ -13,11 +13,49 @@ interface IRegisterSet {
   e: number;
   h: number;
   l: number;
+  /**
+   * The flags register, consisting of the following bits:
+   *
+   * | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+   * |---|---|---|---|---|---|---|---|
+   * | Z | N | H | C | 0 | 0 | 0 | 0 |
+   *
+   * - Z = Zero flag: This bit is set when the result of a math operation is zero or two values
+   *   match when using the CP instruction.
+   * - N = Subtract flag: This bit is set if a subtraction was performed in the last math
+   *   instruction.
+   * - H = Half Carry Flag: This bit is set if a carry occurred from the lower nibble in the last
+   *   math operation.
+   * - C = Carry flag: This bit is set if a carry occurred from the last math operation or if
+   *   register A is the smaller value when executing the CP instruction.
+   */
   f: number;
   /** Program counter */
   pc: number;
   /** Stack pointer */
   sp: number;
+}
+
+const enum Flags {
+  /**
+   * Zero flag: This bit is set when the result of a math operation is zero or two values match when
+   * using the CP instruction.
+   */
+  Z = 0b10000000,
+  /**
+   * Subtract flag: This bit is set if a subtraction was performed in the last math instruction.
+   */
+  N = 0b01000000,
+  /**
+   * Half Carry Flag: This bit is set if a carry occurred from the lower nibble in the last math
+   * operation.
+   */
+  H = 0b00100000,
+  /**
+   * C = Carry flag: This bit is set if a carry occurred from the last math operation or if register
+   * A is the smaller value when executing the CP instruction.
+   */
+  C = 0b00010000
 }
 
 /**
@@ -220,6 +258,7 @@ const o = {
   LD_SP_nn: createOp((r, m) => { r.sp = m.rw(r.pc); r.pc += 2; }, 3),
   LD_SP_HL: createOp((r, m) => { r.sp = m.rb(r.h) << 8 | m.rb(r.l); }, 2),
   LD_HL_SPn: createOp((r, m) => {
+    // TODO: Respect flags http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf
     const v = toSigned(m.rb(r.pc++)) + r.sp;
     r.h = v >> 8 & 255;
     r.l = v & 255;
@@ -240,7 +279,37 @@ const o = {
   POP_DE: createOp((r, m) => { r.e = m.rb(r.sp++); r.d = m.rb(r.sp++); }, 3),
   POP_HL: createOp((r, m) => { r.l = m.rb(r.sp++); r.h = m.rb(r.sp++); }, 3),
 
+  ADD_A_A: createOp((r, m) => { addA(r, r.a); }, 1),
+  ADD_A_B: createOp((r, m) => { addA(r, r.b); }, 1),
+  ADD_A_C: createOp((r, m) => { addA(r, r.c); }, 1),
+  ADD_A_D: createOp((r, m) => { addA(r, r.d); }, 1),
+  ADD_A_E: createOp((r, m) => { addA(r, r.e); }, 1),
+  ADD_A_H: createOp((r, m) => { addA(r, r.h); }, 1),
+  ADD_A_L: createOp((r, m) => { addA(r, r.l); }, 1),
+  ADD_A_HL: createOp((r, m) => { addA(r, m.rb(r.h << 8 + r.l)); }, 2),
+  ADD_A_n: createOp((r, m) => { addA(r, m.rb(r.pc++)); }, 2),
+
   NOP: createOp(() => {}, 1)
+}
+
+/**
+ * Resets flags after an operation, setting Z appropriately.
+ */
+function resetFlags(r: IRegisterSet, result: number) {
+  r.f = 0;
+  // Set Z if the resulting value was 0
+  if ((result & 255) === 0) {
+    r.f |= Flags.Z;
+  }
+}
+
+function addA(r: IRegisterSet, value: number) {
+  r.a += value;
+  resetFlags(r, r.a);
+  if (r.a > 255) {
+    r.f |= Flags.C;
+  }
+  r.a &= 255;
 }
 
 const oMap: (IOperation | undefined)[] = [
@@ -389,14 +458,14 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_A_A,
 
   // 80
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
+  o.ADD_A_B,
+  o.ADD_A_C,
+  o.ADD_A_D,
+  o.ADD_A_E,
+  o.ADD_A_H,
+  o.ADD_A_L,
+  o.ADD_A_HL,
+  o.ADD_A_A,
   undefined,
   undefined,
   undefined,
@@ -467,7 +536,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   undefined,
   o.PUSH_BC,
-  undefined,
+  o.ADD_A_n,
   undefined,
   undefined,
   undefined,
