@@ -319,6 +319,16 @@ const o = {
   SBC_A_HL: createOp((r, m) => { subA(r, m.rb(r.h << 8 + r.l) + (r.f & Flags.C ? 1 : 0)); }, 2),
   // SBC_A_n not needed?
 
+  AND_A_A: createOp((r, m) => { andA(r, r.a); }, 1),
+  AND_A_B: createOp((r, m) => { andA(r, r.b); }, 1),
+  AND_A_C: createOp((r, m) => { andA(r, r.c); }, 1),
+  AND_A_D: createOp((r, m) => { andA(r, r.d); }, 1),
+  AND_A_E: createOp((r, m) => { andA(r, r.e); }, 1),
+  AND_A_H: createOp((r, m) => { andA(r, r.h); }, 1),
+  AND_A_L: createOp((r, m) => { andA(r, r.l); }, 1),
+  AND_A_HL: createOp((r, m) => { andA(r, m.rb(r.h << 8 + r.l)); }, 1),
+  AND_A_n: createOp((r, m) => { andA(r, m.rb(r.pc++)); }, 1),
+
   NOP: createOp(() => {}, 1)
 }
 
@@ -351,6 +361,16 @@ function subA(r: IRegisterSet, value: number) {
   if (r.a < 0) {
     r.f |= Flags.C;
   }
+  r.a &= 255;
+}
+
+function andA(r: IRegisterSet, value: number) {
+  r.a &= value;
+  resetFlags(r, r.a);
+  if (r.a > 255) {
+    r.f |= Flags.C;
+  }
+  r.f |= Flags.H
   r.a &= 255;
 }
 
@@ -536,14 +556,14 @@ const oMap: (IOperation | undefined)[] = [
   o.SBC_A_A,
 
   // A0
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
+  o.AND_A_B,
+  o.AND_A_C,
+  o.AND_A_D,
+  o.AND_A_E,
+  o.AND_A_H,
+  o.AND_A_L,
+  o.AND_A_HL,
+  o.AND_A_A,
   undefined,
   undefined,
   undefined,
@@ -614,7 +634,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   undefined,
   o.PUSH_HL,
-  undefined,
+  o.AND_A_n,
   undefined,
   undefined,
   undefined,
