@@ -235,6 +235,11 @@ const o = {
   PUSH_DE: createOp((r, m) => { m.wb(--r.sp, r.d); m.wb(--r.sp, r.e); }, 4),
   PUSH_HL: createOp((r, m) => { m.wb(--r.sp, r.h); m.wb(--r.sp, r.l); }, 4),
 
+  POP_AF: createOp((r, m) => { r.f = m.rb(r.sp++); r.a = m.rb(r.sp++); }, 3),
+  POP_BC: createOp((r, m) => { r.c = m.rb(r.sp++); r.b = m.rb(r.sp++); }, 3),
+  POP_DE: createOp((r, m) => { r.e = m.rb(r.sp++); r.d = m.rb(r.sp++); }, 3),
+  POP_HL: createOp((r, m) => { r.l = m.rb(r.sp++); r.h = m.rb(r.sp++); }, 3),
+
   NOP: createOp(() => {}, 1)
 }
 
@@ -457,7 +462,7 @@ const oMap: (IOperation | undefined)[] = [
 
   // C0
   undefined,
-  undefined,
+  o.POP_BC,
   undefined,
   undefined,
   undefined,
@@ -475,7 +480,7 @@ const oMap: (IOperation | undefined)[] = [
 
   // D0
   undefined,
-  undefined,
+  o.POP_DE,
   undefined,
   undefined,
   undefined,
@@ -493,7 +498,7 @@ const oMap: (IOperation | undefined)[] = [
 
   // E0
   o.LD_FFn_A,
-  undefined,
+  o.POP_HL,
   o.LD_FFC_A,
   undefined,
   undefined,
@@ -511,7 +516,7 @@ const oMap: (IOperation | undefined)[] = [
 
   // F0
   o.LD_A_FFn,
-  undefined,
+  o.POP_AF,
   o.LD_A_FFC,
   undefined,
   undefined,
