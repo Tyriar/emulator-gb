@@ -296,8 +296,18 @@ const o = {
   ADC_A_E: createOp((r, m) => { addA(r, r.e + (r.f & Flags.C ? 1 : 0)); }, 1),
   ADC_A_H: createOp((r, m) => { addA(r, r.h + (r.f & Flags.C ? 1 : 0)); }, 1),
   ADC_A_L: createOp((r, m) => { addA(r, r.l + (r.f & Flags.C ? 1 : 0)); }, 1),
-  ADC_A_HL: createOp((r, m) => { addA(r, m.rb(r.h << 8 + r.l) + (r.f & Flags.C ? 1 : 0)); }, 1),
-  ADC_A_n: createOp((r, m) => { addA(r, m.rb(r.pc++) + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_A_HL: createOp((r, m) => { addA(r, m.rb(r.h << 8 + r.l) + (r.f & Flags.C ? 1 : 0)); }, 2),
+  ADC_A_n: createOp((r, m) => { addA(r, m.rb(r.pc++) + (r.f & Flags.C ? 1 : 0)); }, 2),
+
+  SUB_A_A: createOp((r, m) => { subA(r, r.a); }, 1),
+  SUB_A_B: createOp((r, m) => { subA(r, r.b); }, 1),
+  SUB_A_C: createOp((r, m) => { subA(r, r.c); }, 1),
+  SUB_A_D: createOp((r, m) => { subA(r, r.d); }, 1),
+  SUB_A_E: createOp((r, m) => { subA(r, r.e); }, 1),
+  SUB_A_H: createOp((r, m) => { subA(r, r.h); }, 1),
+  SUB_A_L: createOp((r, m) => { subA(r, r.l); }, 1),
+  SUB_A_HL: createOp((r, m) => { subA(r, m.rb(r.h << 8 + r.l)); }, 2),
+  SUB_A_n: createOp((r, m) => { subA(r, m.rb(r.pc++)); }, 2),
 
   NOP: createOp(() => {}, 1)
 }
@@ -317,6 +327,16 @@ function addA(r: IRegisterSet, value: number) {
   r.a += value;
   resetFlags(r, r.a);
   if (r.a > 255) {
+    r.f |= Flags.C;
+  }
+  r.a &= 255;
+}
+
+function subA(r: IRegisterSet, value: number) {
+  r.a -= value;
+  resetFlags(r, r.a);
+  r.f |= Flags.N;
+  if (r.a < 0) {
     r.f |= Flags.C;
   }
   r.a &= 255;
@@ -486,14 +506,14 @@ const oMap: (IOperation | undefined)[] = [
   o.ADC_A_A,
 
   // 90
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
+  o.SUB_A_B,
+  o.SUB_A_C,
+  o.SUB_A_D,
+  o.SUB_A_E,
+  o.SUB_A_H,
+  o.SUB_A_L,
+  o.SUB_A_HL,
+  o.SUB_A_A,
   undefined,
   undefined,
   undefined,
@@ -564,7 +584,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   undefined,
   o.PUSH_DE,
-  undefined,
+  o.SUB_A_n,
   undefined,
   undefined,
   undefined,
