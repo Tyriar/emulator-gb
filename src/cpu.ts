@@ -329,6 +329,16 @@ const o = {
   AND_A_HL: createOp((r, m) => { andA(r, m.rb(r.h << 8 + r.l)); }, 1),
   AND_A_n: createOp((r, m) => { andA(r, m.rb(r.pc++)); }, 1),
 
+  OR_A_A: createOp((r, m) => { orA(r, r.a); }, 1),
+  OR_A_B: createOp((r, m) => { orA(r, r.b); }, 1),
+  OR_A_C: createOp((r, m) => { orA(r, r.c); }, 1),
+  OR_A_D: createOp((r, m) => { orA(r, r.d); }, 1),
+  OR_A_E: createOp((r, m) => { orA(r, r.e); }, 1),
+  OR_A_H: createOp((r, m) => { orA(r, r.h); }, 1),
+  OR_A_L: createOp((r, m) => { orA(r, r.l); }, 1),
+  OR_A_HL: createOp((r, m) => { orA(r, m.rb(r.h << 8 + r.l)); }, 1),
+  OR_A_n: createOp((r, m) => { orA(r, m.rb(r.pc++)); }, 1),
+
   NOP: createOp(() => {}, 1)
 }
 
@@ -371,6 +381,12 @@ function andA(r: IRegisterSet, value: number) {
     r.f |= Flags.C;
   }
   r.f |= Flags.H
+  r.a &= 255;
+}
+
+function orA(r: IRegisterSet, value: number) {
+  r.a |= value;
+  resetFlags(r, r.a);
   r.a &= 255;
 }
 
@@ -574,14 +590,14 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
 
   // B0
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
+  o.OR_A_B,
+  o.OR_A_C,
+  o.OR_A_D,
+  o.OR_A_E,
+  o.OR_A_H,
+  o.OR_A_L,
+  o.OR_A_HL,
+  o.OR_A_A,
   undefined,
   undefined,
   undefined,
@@ -652,7 +668,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   undefined,
   o.PUSH_AF,
-  undefined,
+  o.OR_A_n,
   undefined,
   o.LD_HL_SPn,
   o.LD_SP_HL,
