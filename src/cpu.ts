@@ -309,6 +309,16 @@ const o = {
   SUB_A_HL: createOp((r, m) => { subA(r, m.rb(r.h << 8 + r.l)); }, 2),
   SUB_A_n: createOp((r, m) => { subA(r, m.rb(r.pc++)); }, 2),
 
+  SBC_A_A: createOp((r, m) => { subA(r, r.a + (r.f & Flags.C ? 1 : 0)); }, 1),
+  SBC_A_B: createOp((r, m) => { subA(r, r.b + (r.f & Flags.C ? 1 : 0)); }, 1),
+  SBC_A_C: createOp((r, m) => { subA(r, r.c + (r.f & Flags.C ? 1 : 0)); }, 1),
+  SBC_A_D: createOp((r, m) => { subA(r, r.d + (r.f & Flags.C ? 1 : 0)); }, 1),
+  SBC_A_E: createOp((r, m) => { subA(r, r.e + (r.f & Flags.C ? 1 : 0)); }, 1),
+  SBC_A_H: createOp((r, m) => { subA(r, r.h + (r.f & Flags.C ? 1 : 0)); }, 1),
+  SBC_A_L: createOp((r, m) => { subA(r, r.l + (r.f & Flags.C ? 1 : 0)); }, 1),
+  SBC_A_HL: createOp((r, m) => { subA(r, m.rb(r.h << 8 + r.l) + (r.f & Flags.C ? 1 : 0)); }, 2),
+  // SBC_A_n not needed?
+
   NOP: createOp(() => {}, 1)
 }
 
@@ -323,6 +333,7 @@ function resetFlags(r: IRegisterSet, result: number) {
   }
 }
 
+// TODO: This is meant to set H if carry from bit 3
 function addA(r: IRegisterSet, value: number) {
   r.a += value;
   resetFlags(r, r.a);
@@ -332,6 +343,7 @@ function addA(r: IRegisterSet, value: number) {
   r.a &= 255;
 }
 
+// TODO: This is meant to set H no borrow from bit 4
 function subA(r: IRegisterSet, value: number) {
   r.a -= value;
   resetFlags(r, r.a);
@@ -514,14 +526,14 @@ const oMap: (IOperation | undefined)[] = [
   o.SUB_A_L,
   o.SUB_A_HL,
   o.SUB_A_A,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
+  o.SBC_A_B,
+  o.SBC_A_C,
+  o.SBC_A_D,
+  o.SBC_A_E,
+  o.SBC_A_H,
+  o.SBC_A_L,
+  o.SBC_A_HL,
+  o.SBC_A_A,
 
   // A0
   undefined,
