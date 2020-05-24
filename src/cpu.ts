@@ -76,6 +76,13 @@ function createOp(f: (r: IRegisterSet, m: IMemory) => void, cost: number): IOper
   };
 }
 
+function toSigned(v: number): number {
+  if (v <= 127) {
+    return v;
+  }
+  return -((~v + 1) & 255);
+}
+
 const o = {
   LD_A_A: createOp((r) => { r.a = r.a; }, 1),
   LD_A_B: createOp((r) => { r.a = r.b; }, 1),
@@ -212,9 +219,21 @@ const o = {
   LD_HL_nn: createOp((r, m) => { r.l = m.rb(r.pc++); r.h = m.rb(r.pc++); }, 3),
   LD_SP_nn: createOp((r, m) => { r.sp = m.rw(r.pc); r.pc += 2; }, 3),
   LD_SP_HL: createOp((r, m) => { r.sp = m.rb(r.h) << 8 | m.rb(r.l); }, 2),
-  LD_SP_HLn: createOp((r, m) => {
-    r.sp = m.rb(r.h) << 8 | m.rb(r.l);
+  LD_HL_SPn: createOp((r, m) => {
+    const v = toSigned(m.rb(r.pc++)) + r.sp;
+    r.h = v >> 8 & 255;
+    r.l = v & 255;
   }, 3),
+  // TODO: Verify this is correct
+  LD_nn_SP: createOp((r, m) => { m.ww(m.rw(r.pc), r.sp); r.pc += 2; }, 5),
+
+  // TODO: Verify push cost
+  // - http://imrannazar.com/content/files/jsgb.z80.js says 3
+  // - http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf says 4
+  PUSH_AF: createOp((r, m) => { m.wb(--r.sp, r.a); m.wb(--r.sp, r.f); }, 4),
+  PUSH_BC: createOp((r, m) => { m.wb(--r.sp, r.b); m.wb(--r.sp, r.c); }, 4),
+  PUSH_DE: createOp((r, m) => { m.wb(--r.sp, r.d); m.wb(--r.sp, r.e); }, 4),
+  PUSH_HL: createOp((r, m) => { m.wb(--r.sp, r.h); m.wb(--r.sp, r.l); }, 4),
 
   NOP: createOp(() => {}, 1)
 }
@@ -229,7 +248,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   o.LD_B_n,
   undefined,
-  undefined,
+  o.LD_nn_SP,
   undefined,
   o.LD_A_BC,
   undefined,
@@ -442,7 +461,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   undefined,
   undefined,
-  undefined,
+  o.PUSH_BC,
   undefined,
   undefined,
   undefined,
@@ -460,7 +479,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   undefined,
   undefined,
-  undefined,
+  o.PUSH_DE,
   undefined,
   undefined,
   undefined,
@@ -478,7 +497,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_FFC_A,
   undefined,
   undefined,
-  undefined,
+  o.PUSH_HL,
   undefined,
   undefined,
   undefined,
@@ -496,10 +515,10 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_A_FFC,
   undefined,
   undefined,
+  o.PUSH_AF,
   undefined,
   undefined,
-  undefined,
-  undefined,
+  o.LD_HL_SPn,
   o.LD_SP_HL,
   o.LD_A_nn,
   undefined,
