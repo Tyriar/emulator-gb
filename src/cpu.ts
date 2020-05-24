@@ -289,6 +289,16 @@ const o = {
   ADD_A_HL: createOp((r, m) => { addA(r, m.rb(r.h << 8 + r.l)); }, 2),
   ADD_A_n: createOp((r, m) => { addA(r, m.rb(r.pc++)); }, 2),
 
+  ADC_A_A: createOp((r, m) => { addA(r, r.a + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_A_B: createOp((r, m) => { addA(r, r.b + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_A_C: createOp((r, m) => { addA(r, r.c + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_A_D: createOp((r, m) => { addA(r, r.d + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_A_E: createOp((r, m) => { addA(r, r.e + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_A_H: createOp((r, m) => { addA(r, r.h + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_A_L: createOp((r, m) => { addA(r, r.l + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_A_HL: createOp((r, m) => { addA(r, m.rb(r.h << 8 + r.l) + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_A_n: createOp((r, m) => { addA(r, m.rb(r.pc++) + (r.f & Flags.C ? 1 : 0)); }, 1),
+
   NOP: createOp(() => {}, 1)
 }
 
@@ -466,14 +476,14 @@ const oMap: (IOperation | undefined)[] = [
   o.ADD_A_L,
   o.ADD_A_HL,
   o.ADD_A_A,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
+  o.ADC_A_B,
+  o.ADC_A_C,
+  o.ADC_A_D,
+  o.ADC_A_E,
+  o.ADC_A_H,
+  o.ADC_A_L,
+  o.ADC_A_HL,
+  o.ADC_A_A,
 
   // 90
   undefined,
@@ -544,7 +554,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   undefined,
   undefined,
-  undefined,
+  o.ADC_A_n,
   undefined,
 
   // D0
