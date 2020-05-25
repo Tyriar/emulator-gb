@@ -8,3 +8,6 @@ export interface IMemory {
   /** Write 16-bit word */
   ww(address: number, value: number): void;
 }
+
+export interface ICanvas {
+}
