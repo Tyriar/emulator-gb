@@ -413,6 +413,21 @@ const o = {
   INC_HL: createOp((r) => { inc2(r, 'h', 'l'); }, 2),
   INC_SP: createOp((r) => { inc(r, 'sp', 65535); }, 2),
 
+  DEC_BC: createOp((r) => { dec2(r, 'b', 'c'); }, 2),
+  DEC_DE: createOp((r) => { dec2(r, 'd', 'e'); }, 2),
+  DEC_HL: createOp((r) => { dec2(r, 'h', 'l'); }, 2),
+  DEC_SP: createOp((r) => { dec(r, 'sp', 65535); }, 2),
+
+  // Swap upper and lower nibbles
+  SWAP_A: createOp((r) => { swap(r, 'a'); }, 2),
+  SWAP_B: createOp((r) => { swap(r, 'b'); }, 2),
+  SWAP_C: createOp((r) => { swap(r, 'c'); }, 2),
+  SWAP_D: createOp((r) => { swap(r, 'd'); }, 2),
+  SWAP_E: createOp((r) => { swap(r, 'e'); }, 2),
+  SWAP_H: createOp((r) => { swap(r, 'h'); }, 2),
+  SWAP_L: createOp((r) => { swap(r, 'l'); }, 2),
+  SWAP_HLM: createOp((r) => { swap(r, 'a'); }, 4),
+
   NOP: createOp(() => {}, 1)
 }
 
@@ -481,7 +496,7 @@ function cp(r: IRegisterSet, value: number) {
 }
 
 function inc(r: IRegisterSet, key: keyof IRegisterSet, max: number = 255) {
-  r[key] = (r[key] + 1) & max
+  r[key] = (r[key] + 1) & max;
   resetFlags(r, r[key]);
 }
 
@@ -492,9 +507,16 @@ function inc2(r: IRegisterSet, key1: keyof IRegisterSet, key2: keyof IRegisterSe
   }
 }
 
-function dec(r: IRegisterSet, key: keyof IRegisterSet) {
-  r[key] = (r[key] - 1) & 255
+function dec(r: IRegisterSet, key: keyof IRegisterSet, max: number = 255) {
+  r[key] = (r[key] - 1) & max;
   resetFlags(r, r[key]);
+}
+
+function dec2(r: IRegisterSet, key1: keyof IRegisterSet, key2: keyof IRegisterSet) {
+  r[key2] = (r[key2] - 1) & 255;
+  if (r[key2] === 0) {
+    r[key1] = (r[key1] - 1) & 255;
+  }
 }
 
 function addHl(r: IRegisterSet, value: number) {
@@ -505,6 +527,11 @@ function addHl(r: IRegisterSet, value: number) {
   if (hl > 65535) {
     r.f |= Flags.C;
   }
+}
+
+function swap(r: IRegisterSet, key: keyof IRegisterSet) {
+  r[key] = ((r[key] >> 4) | (r[key] << 4)) & 255;
+  resetFlags(r, r[key]);
 }
 
 const oMap: (IOperation | undefined)[] = [
@@ -520,7 +547,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_nn_SP,
   o.ADD_HL_BC,
   o.LD_A_BC,
-  undefined,
+  o.DEC_BC,
   o.INC_C,
   o.DEC_C,
   o.LD_C_n,
@@ -538,7 +565,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   o.ADD_HL_DE,
   o.LD_A_DE,
-  undefined,
+  o.DEC_DE,
   o.INC_E,
   o.DEC_E,
   o.LD_E_n,
@@ -556,7 +583,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   o.ADD_HL_HL,
   o.LD_A_HLI,
-  undefined,
+  o.DEC_HL,
   o.INC_L,
   o.DEC_L,
   o.LD_L_n,
@@ -574,7 +601,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   o.ADD_HL_SP,
   o.LD_A_HLD,
-  undefined,
+  o.DEC_SP,
   o.INC_A,
   o.DEC_A,
   o.LD_A_n,
@@ -794,5 +821,151 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   undefined,
   undefined,
-  undefined,
+  undefined
 ];
+
+const oCbMap: (IOperation | undefined)[] = [
+  // CB 00
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+
+  // CB 10
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+
+  // CB 20
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+
+  // CB 30
+  o.SWAP_B,
+  o.SWAP_C,
+  o.SWAP_D,
+  o.SWAP_E,
+  o.SWAP_H,
+  o.SWAP_L,
+  o.SWAP_HLM,
+  o.SWAP_A,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+
+  // CB 40
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+
+  // CB 50
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+
+  // CB 60
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+
+  // CB 70
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+]
