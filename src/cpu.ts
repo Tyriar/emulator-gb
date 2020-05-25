@@ -1,10 +1,5 @@
 import { IMemory } from "./interfaces";
 
-interface IClock {
-  m: number;
-  t: number;
-}
-
 interface IRegisterSet {
   /**
    * The accumulator register, this is specially used for logic and arithmetic.
@@ -65,10 +60,12 @@ const enum Flags {
  * Emulates a Z80 CPU
  */
 export class Cpu {
-  private _c: IClock = {
-    m: 0,
-    t: 0
-  };
+  /**
+   * While the clock speed of the CPU on the gameboy was ~4MHz, the actual operations were RAM bound
+   * which ran at ~1MHz. As such, this value will use 1MHz based cycle speeds to avoid requiring all
+   * CPU costs to be divisible by 4.
+   */
+  private _c: number = 0;
 
   private _r: IRegisterSet = {
     a: 0,
@@ -95,25 +92,16 @@ export class Cpu {
     this._r.f = 0;
     this._r.pc = 0;
     this._r.sp = 0;
-    this._c.m = 0;
-    this._c.t = 0;
-  }
-
-  private _createOp(op: () => void, cost: number) {
-    return () => {
-      op();
-      this._c.m += cost;
-      this._c.t += cost * 4;
-    };
+    this._c = 0;
   }
 }
 
 type IOperation = (r: IRegisterSet, m: IMemory) => number;
 
-function createOp(f: (r: IRegisterSet, m: IMemory) => void, cost: number): IOperation {
+function createOp(f: (r: IRegisterSet, m: IMemory) => void, cycles: number): IOperation {
   return (r, m) => {
     f(r, m);
-    return cost;
+    return cycles;
   };
 }
 
