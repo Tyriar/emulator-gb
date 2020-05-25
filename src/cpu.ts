@@ -394,6 +394,7 @@ const o = {
   ADD_HL_DE: createOp((r) => { addHl(r, r.d << 8 + r.e); }, 2),
   ADD_HL_HL: createOp((r) => { addHl(r, r.h << 8 + r.l); }, 2),
   ADD_HL_SP: createOp((r) => { addHl(r, r.sp); }, 2),
+  ADD_SP_n: createOp((r, m) => { r.sp += toSigned(m.rb(r.pc++)); }, 4),
 
   NOP: createOp(() => {}, 1)
 }
