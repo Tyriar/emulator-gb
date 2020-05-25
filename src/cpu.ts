@@ -362,27 +362,27 @@ const o = {
   CP_HL: createOp((r, m) => { cp(r, m.rb(r.h << 8 + r.l)); }, 2),
   CP_n: createOp((r, m) => { cp(r, m.rb(r.pc++)); }, 2),
 
-  INC_A: createOp((r) => { resetFlags(r, ++r.a & 255); }, 1),
-  INC_B: createOp((r) => { resetFlags(r, ++r.b & 255); }, 1),
-  INC_C: createOp((r) => { resetFlags(r, ++r.c & 255); }, 1),
-  INC_D: createOp((r) => { resetFlags(r, ++r.d & 255); }, 1),
-  INC_E: createOp((r) => { resetFlags(r, ++r.e & 255); }, 1),
-  INC_H: createOp((r) => { resetFlags(r, ++r.h & 255); }, 1),
-  INC_L: createOp((r) => { resetFlags(r, ++r.l & 255); }, 1),
-  INC_HL: createOp((r, m) => {
+  INC_A: createOp((r) => { inc(r, 'a'); }, 1),
+  INC_B: createOp((r) => { inc(r, 'b'); }, 1),
+  INC_C: createOp((r) => { inc(r, 'c'); }, 1),
+  INC_D: createOp((r) => { inc(r, 'd'); }, 1),
+  INC_E: createOp((r) => { inc(r, 'e'); }, 1),
+  INC_H: createOp((r) => { inc(r, 'h'); }, 1),
+  INC_L: createOp((r) => { inc(r, 'l'); }, 1),
+  INC_HLM: createOp((r, m) => {
     const i = r.h << 8 + r.l;
     const v = (m.rb(i) + 1) & 255;
     m.wb(i, v);
     resetFlags(r, v);
   }, 3),
 
-  DEC_A: createOp((r) => { resetFlags(r, --r.a & 255); }, 1),
-  DEC_B: createOp((r) => { resetFlags(r, --r.b & 255); }, 1),
-  DEC_C: createOp((r) => { resetFlags(r, --r.c & 255); }, 1),
-  DEC_D: createOp((r) => { resetFlags(r, --r.d & 255); }, 1),
-  DEC_E: createOp((r) => { resetFlags(r, --r.e & 255); }, 1),
-  DEC_H: createOp((r) => { resetFlags(r, --r.h & 255); }, 1),
-  DEC_L: createOp((r) => { resetFlags(r, --r.l & 255); }, 1),
+  DEC_A: createOp((r) => { dec(r, 'a'); }, 1),
+  DEC_B: createOp((r) => { dec(r, 'b'); }, 1),
+  DEC_C: createOp((r) => { dec(r, 'c'); }, 1),
+  DEC_D: createOp((r) => { dec(r, 'd'); }, 1),
+  DEC_E: createOp((r) => { dec(r, 'e'); }, 1),
+  DEC_H: createOp((r) => { dec(r, 'h'); }, 1),
+  DEC_L: createOp((r) => { dec(r, 'l'); }, 1),
   DEC_HL: createOp((r, m) => {
     const i = r.h << 8 + r.l;
     const v = (m.rb(i) - 1) & 255;
@@ -394,7 +394,16 @@ const o = {
   ADD_HL_DE: createOp((r) => { addHl(r, r.d << 8 + r.e); }, 2),
   ADD_HL_HL: createOp((r) => { addHl(r, r.h << 8 + r.l); }, 2),
   ADD_HL_SP: createOp((r) => { addHl(r, r.sp); }, 2),
-  ADD_SP_n: createOp((r, m) => { r.sp += toSigned(m.rb(r.pc++)); }, 4),
+  ADD_SP_n: createOp((r, m) => {
+    r.sp += toSigned(m.rb(r.pc++));
+    r.f = 0;
+    // TODO: Check overflow and set C?
+  }, 4),
+
+  INC_BC: createOp((r) => { inc2(r, 'b', 'c'); }, 2),
+  INC_DE: createOp((r) => { inc2(r, 'd', 'e'); }, 2),
+  INC_HL: createOp((r) => { inc2(r, 'h', 'l'); }, 2),
+  INC_SP: createOp((r) => { inc(r, 'sp', 65535); }, 2),
 
   NOP: createOp(() => {}, 1)
 }
@@ -463,6 +472,23 @@ function cp(r: IRegisterSet, value: number) {
   // TODO: Impl H?
 }
 
+function inc(r: IRegisterSet, key: keyof IRegisterSet, max: number = 255) {
+  r[key] = (r[key] + 1) & max
+  resetFlags(r, r[key]);
+}
+
+function inc2(r: IRegisterSet, key1: keyof IRegisterSet, key2: keyof IRegisterSet) {
+  r[key2] = (r[key2] + 1) & 255;
+  if (r[key2] === 0) {
+    r[key1] = (r[key1] + 1) & 255;
+  }
+}
+
+function dec(r: IRegisterSet, key: keyof IRegisterSet) {
+  r[key] = (r[key] - 1) & 255
+  resetFlags(r, r[key]);
+}
+
 function addHl(r: IRegisterSet, value: number) {
   const hl = r.h << 8 + r.l + value;
   // TODO: Don't reset Z?
@@ -478,7 +504,7 @@ const oMap: (IOperation | undefined)[] = [
   o.NOP,
   o.LD_BC_nn,
   o.LD_BC_A,
-  undefined,
+  o.INC_BC,
   o.INC_B,
   o.DEC_B,
   o.LD_B_n,
@@ -496,7 +522,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   o.LD_DE_nn,
   o.LD_DE_A,
-  undefined,
+  o.INC_DE,
   o.INC_D,
   o.DEC_D,
   o.LD_D_n,
@@ -514,7 +540,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   o.LD_HL_nn,
   o.LD_HLI_A,
-  undefined,
+  o.INC_HLM,
   o.INC_H,
   o.DEC_H,
   o.LD_H_n,
@@ -532,7 +558,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   o.LD_SP_nn,
   o.LD_HLD_A,
-  undefined,
+  o.INC_SP,
   o.INC_HL,
   o.DEC_HL,
   o.LD_HL_n,
