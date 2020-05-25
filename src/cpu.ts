@@ -426,7 +426,13 @@ const o = {
   SWAP_E: createOp((r) => { swap(r, 'e'); }, 2),
   SWAP_H: createOp((r) => { swap(r, 'h'); }, 2),
   SWAP_L: createOp((r) => { swap(r, 'l'); }, 2),
-  SWAP_HLM: createOp((r) => { swap(r, 'a'); }, 4),
+  SWAP_HLM: createOp((r, m) => {
+    const i = r.h << 8 + r.l;
+    const hlm = m.rb(i);
+    const v = (hlm >> 4 | hlm << 4) & 255;
+    m.wb(i, v);
+    resetFlags(r, v);
+  }, 4),
 
   NOP: createOp(() => {}, 1)
 }
@@ -530,7 +536,7 @@ function addHl(r: IRegisterSet, value: number) {
 }
 
 function swap(r: IRegisterSet, key: keyof IRegisterSet) {
-  r[key] = ((r[key] >> 4) | (r[key] << 4)) & 255;
+  r[key] = (r[key] >> 4 | r[key] << 4) & 255;
   resetFlags(r, r[key]);
 }
 
