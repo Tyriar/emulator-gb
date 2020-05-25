@@ -362,16 +362,30 @@ const o = {
   CP_HL: createOp((r, m) => { cp(r, m.rb(r.h << 8 + r.l)); }, 2),
   CP_n: createOp((r, m) => { cp(r, m.rb(r.pc++)); }, 2),
 
-  INC_A: createOp((r) => { inc(r, 'a'); }, 1),
-  INC_B: createOp((r) => { inc(r, 'b'); }, 1),
-  INC_C: createOp((r) => { inc(r, 'c'); }, 1),
-  INC_D: createOp((r) => { inc(r, 'd'); }, 1),
-  INC_E: createOp((r) => { inc(r, 'e'); }, 1),
-  INC_H: createOp((r) => { inc(r, 'h'); }, 1),
-  INC_L: createOp((r) => { inc(r, 'l'); }, 1),
+  INC_A: createOp((r) => { resetFlags(r, ++r.a & 255); }, 1),
+  INC_B: createOp((r) => { resetFlags(r, ++r.b & 255); }, 1),
+  INC_C: createOp((r) => { resetFlags(r, ++r.c & 255); }, 1),
+  INC_D: createOp((r) => { resetFlags(r, ++r.d & 255); }, 1),
+  INC_E: createOp((r) => { resetFlags(r, ++r.e & 255); }, 1),
+  INC_H: createOp((r) => { resetFlags(r, ++r.h & 255); }, 1),
+  INC_L: createOp((r) => { resetFlags(r, ++r.l & 255); }, 1),
   INC_HL: createOp((r, m) => {
     const i = r.h << 8 + r.l;
     const v = (m.rb(i) + 1) & 255;
+    m.wb(i, v);
+    resetFlags(r, v);
+  }, 3),
+
+  DEC_A: createOp((r) => { resetFlags(r, --r.a & 255); }, 1),
+  DEC_B: createOp((r) => { resetFlags(r, --r.b & 255); }, 1),
+  DEC_C: createOp((r) => { resetFlags(r, --r.c & 255); }, 1),
+  DEC_D: createOp((r) => { resetFlags(r, --r.d & 255); }, 1),
+  DEC_E: createOp((r) => { resetFlags(r, --r.e & 255); }, 1),
+  DEC_H: createOp((r) => { resetFlags(r, --r.h & 255); }, 1),
+  DEC_L: createOp((r) => { resetFlags(r, --r.l & 255); }, 1),
+  DEC_HL: createOp((r, m) => {
+    const i = r.h << 8 + r.l;
+    const v = (m.rb(i) - 1) & 255;
     m.wb(i, v);
     resetFlags(r, v);
   }, 3),
@@ -443,11 +457,6 @@ function cp(r: IRegisterSet, value: number) {
   // TODO: Impl H?
 }
 
-function inc(r: IRegisterSet, i: keyof IRegisterSet) {
-  r[i]++;
-  resetFlags(r, r[i]);
-}
-
 const oMap: (IOperation | undefined)[] = [
   // 00
   o.NOP,
@@ -455,7 +464,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_BC_A,
   undefined,
   o.INC_B,
-  undefined,
+  o.DEC_B,
   o.LD_B_n,
   undefined,
   o.LD_nn_SP,
@@ -463,7 +472,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_A_BC,
   undefined,
   o.INC_C,
-  undefined,
+  o.DEC_C,
   o.LD_C_n,
   undefined,
 
@@ -473,7 +482,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_DE_A,
   undefined,
   o.INC_D,
-  undefined,
+  o.DEC_D,
   o.LD_D_n,
   undefined,
   undefined,
@@ -481,7 +490,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_A_DE,
   undefined,
   o.INC_E,
-  undefined,
+  o.DEC_E,
   o.LD_E_n,
   undefined,
 
@@ -491,7 +500,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_HLI_A,
   undefined,
   o.INC_H,
-  undefined,
+  o.DEC_H,
   o.LD_H_n,
   undefined,
   undefined,
@@ -499,7 +508,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_A_HLI,
   undefined,
   o.INC_L,
-  undefined,
+  o.DEC_L,
   o.LD_L_n,
   undefined,
 
@@ -509,7 +518,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_HLD_A,
   undefined,
   o.INC_HL,
-  undefined,
+  o.DEC_HL,
   o.LD_HL_n,
   undefined,
   undefined,
@@ -517,7 +526,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_A_HLD,
   undefined,
   o.INC_A,
-  undefined,
+  o.DEC_A,
   o.LD_A_n,
   undefined,
 
