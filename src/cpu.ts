@@ -349,6 +349,16 @@ const o = {
   XOR_A_HL: createOp((r, m) => { xorA(r, m.rb(r.h << 8 + r.l)); }, 1),
   XOR_A_n: createOp((r, m) => { xorA(r, m.rb(r.pc++)); }, 1),
 
+  CP_A: createOp((r, m) => { cp(r, r.a); }, 1),
+  CP_B: createOp((r, m) => { cp(r, r.b); }, 1),
+  CP_C: createOp((r, m) => { cp(r, r.c); }, 1),
+  CP_D: createOp((r, m) => { cp(r, r.d); }, 1),
+  CP_E: createOp((r, m) => { cp(r, r.e); }, 1),
+  CP_H: createOp((r, m) => { cp(r, r.h); }, 1),
+  CP_L: createOp((r, m) => { cp(r, r.l); }, 1),
+  CP_HL: createOp((r, m) => { cp(r, m.rb(r.h << 8 + r.l)); }, 1),
+  CP_n: createOp((r, m) => { cp(r, m.rb(r.pc++)); }, 1),
+
   NOP: createOp(() => {}, 1)
 }
 
@@ -404,6 +414,15 @@ function xorA(r: IRegisterSet, value: number) {
   r.a ^= value;
   resetFlags(r, r.a);
   r.a &= 255;
+}
+
+function cp(r: IRegisterSet, value: number) {
+  const v = r.a - value;
+  resetFlags(r, v);
+  r.f |= Flags.N;
+  if (v < 0) {
+    r.f |= Flags.C;
+  }
 }
 
 const oMap: (IOperation | undefined)[] = [
@@ -614,14 +633,14 @@ const oMap: (IOperation | undefined)[] = [
   o.OR_A_L,
   o.OR_A_HL,
   o.OR_A_A,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
+  o.CP_B,
+  o.CP_C,
+  o.CP_D,
+  o.CP_E,
+  o.CP_H,
+  o.CP_L,
+  o.CP_HL,
+  o.CP_A,
 
   // C0
   undefined,
