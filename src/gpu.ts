@@ -1,3 +1,5 @@
+declare const console: any;
+
 const width = 160;
 const height = 144;
 const backgroundBits = width * height * 2;
@@ -61,8 +63,15 @@ export class Gpu {
   }
 
   reset() {
+    // TODO: Init canvas
+  }
+
+  updateTile(address: number, value: number) {
+    // TODO: Implement tile updates
   }
 
   private _renderScan() {
+    // TODO: Implement
+    console.log('Gpu._renderScan');
   }
 }

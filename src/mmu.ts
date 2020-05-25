@@ -41,8 +41,8 @@ export class Mmu implements IMmu {
     ], 0);
   }
 
-  load(buffer: Uint8Array) {
-    // TODO: Assert buffer size and set in memory
+  load(rom: Uint8Array) {
+    // TODO: Assert rom size and set in memory
   }
 
   /** Read byte */
