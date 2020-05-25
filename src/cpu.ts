@@ -130,6 +130,7 @@ function toSigned(v: number): number {
  *
  * - (HL) -> HLM
  * - # -> n
+ * - ($FF00+x) -> FFx
  */
 const o = {
   LD_A_A: createOp((r) => { r.a = r.a; }, 1),
@@ -768,7 +769,7 @@ const oMap: (IOperation | undefined)[] = [
   o.PUSH_HL,
   o.AND_n,
   undefined,
-  undefined,
+  o.ADD_SP_n,
   undefined,
   o.LD_nn_A,
   undefined,
