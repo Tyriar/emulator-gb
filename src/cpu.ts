@@ -124,6 +124,13 @@ function toSigned(v: number): number {
   return -((~v + 1) & 255);
 }
 
+/**
+ * All CPU operations, these are mostly based on http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf with
+ * the following name mappings:
+ *
+ * - (HL) -> HLM
+ * - # -> n
+ */
 const o = {
   LD_A_A: createOp((r) => { r.a = r.a; }, 1),
   LD_A_B: createOp((r) => { r.a = r.b; }, 1),
@@ -289,7 +296,7 @@ const o = {
   ADD_E: createOp((r) => { add(r, r.e); }, 1),
   ADD_H: createOp((r) => { add(r, r.h); }, 1),
   ADD_L: createOp((r) => { add(r, r.l); }, 1),
-  ADD_HL: createOp((r, m) => { add(r, m.rb(r.h << 8 + r.l)); }, 2),
+  ADD_HLM: createOp((r, m) => { add(r, m.rb(r.h << 8 + r.l)); }, 2),
   ADD_n: createOp((r, m) => { add(r, m.rb(r.pc++)); }, 2),
 
   ADC_A: createOp((r) => { add(r, r.a + (r.f & Flags.C ? 1 : 0)); }, 1),
@@ -299,7 +306,7 @@ const o = {
   ADC_E: createOp((r) => { add(r, r.e + (r.f & Flags.C ? 1 : 0)); }, 1),
   ADC_H: createOp((r) => { add(r, r.h + (r.f & Flags.C ? 1 : 0)); }, 1),
   ADC_L: createOp((r) => { add(r, r.l + (r.f & Flags.C ? 1 : 0)); }, 1),
-  ADC_HL: createOp((r, m) => { add(r, m.rb(r.h << 8 + r.l) + (r.f & Flags.C ? 1 : 0)); }, 2),
+  ADC_HLM: createOp((r, m) => { add(r, m.rb(r.h << 8 + r.l) + (r.f & Flags.C ? 1 : 0)); }, 2),
   ADC_n: createOp((r, m) => { add(r, m.rb(r.pc++) + (r.f & Flags.C ? 1 : 0)); }, 2),
 
   SUB_A: createOp((r) => { sub(r, r.a); }, 1),
@@ -309,7 +316,7 @@ const o = {
   SUB_E: createOp((r) => { sub(r, r.e); }, 1),
   SUB_H: createOp((r) => { sub(r, r.h); }, 1),
   SUB_L: createOp((r) => { sub(r, r.l); }, 1),
-  SUB_HL: createOp((r, m) => { sub(r, m.rb(r.h << 8 + r.l)); }, 2),
+  SUB_HLM: createOp((r, m) => { sub(r, m.rb(r.h << 8 + r.l)); }, 2),
   SUB_n: createOp((r, m) => { sub(r, m.rb(r.pc++)); }, 2),
 
   SBC_A: createOp((r) => { sub(r, r.a + (r.f & Flags.C ? 1 : 0)); }, 1),
@@ -319,7 +326,7 @@ const o = {
   SBC_E: createOp((r) => { sub(r, r.e + (r.f & Flags.C ? 1 : 0)); }, 1),
   SBC_H: createOp((r) => { sub(r, r.h + (r.f & Flags.C ? 1 : 0)); }, 1),
   SBC_L: createOp((r) => { sub(r, r.l + (r.f & Flags.C ? 1 : 0)); }, 1),
-  SBC_HL: createOp((r, m) => { sub(r, m.rb(r.h << 8 + r.l) + (r.f & Flags.C ? 1 : 0)); }, 2),
+  SBC_HLM: createOp((r, m) => { sub(r, m.rb(r.h << 8 + r.l) + (r.f & Flags.C ? 1 : 0)); }, 2),
   // SBC_n not needed?
 
   AND_A: createOp((r) => { and(r, r.a); }, 1),
@@ -329,7 +336,7 @@ const o = {
   AND_E: createOp((r) => { and(r, r.e); }, 1),
   AND_H: createOp((r) => { and(r, r.h); }, 1),
   AND_L: createOp((r) => { and(r, r.l); }, 1),
-  AND_HL: createOp((r, m) => { and(r, m.rb(r.h << 8 + r.l)); }, 2),
+  AND_HLM: createOp((r, m) => { and(r, m.rb(r.h << 8 + r.l)); }, 2),
   AND_n: createOp((r, m) => { and(r, m.rb(r.pc++)); }, 2),
 
   OR_A: createOp((r) => { or(r, r.a); }, 1),
@@ -339,7 +346,7 @@ const o = {
   OR_E: createOp((r) => { or(r, r.e); }, 1),
   OR_H: createOp((r) => { or(r, r.h); }, 1),
   OR_L: createOp((r) => { or(r, r.l); }, 1),
-  OR_HL: createOp((r, m) => { or(r, m.rb(r.h << 8 + r.l)); }, 2),
+  OR_HLM: createOp((r, m) => { or(r, m.rb(r.h << 8 + r.l)); }, 2),
   OR_n: createOp((r, m) => { or(r, m.rb(r.pc++)); }, 2),
 
   XOR_A: createOp((r) => { xor(r, r.a); }, 1),
@@ -349,7 +356,7 @@ const o = {
   XOR_E: createOp((r) => { xor(r, r.e); }, 1),
   XOR_H: createOp((r) => { xor(r, r.h); }, 1),
   XOR_L: createOp((r) => { xor(r, r.l); }, 1),
-  XOR_HL: createOp((r, m) => { xor(r, m.rb(r.h << 8 + r.l)); }, 2),
+  XOR_HLM: createOp((r, m) => { xor(r, m.rb(r.h << 8 + r.l)); }, 2),
   XOR_n: createOp((r, m) => { xor(r, m.rb(r.pc++)); }, 2),
 
   CP_A: createOp((r) => { cp(r, r.a); }, 1),
@@ -359,7 +366,7 @@ const o = {
   CP_E: createOp((r) => { cp(r, r.e); }, 1),
   CP_H: createOp((r) => { cp(r, r.h); }, 1),
   CP_L: createOp((r) => { cp(r, r.l); }, 1),
-  CP_HL: createOp((r, m) => { cp(r, m.rb(r.h << 8 + r.l)); }, 2),
+  CP_HLM: createOp((r, m) => { cp(r, m.rb(r.h << 8 + r.l)); }, 2),
   CP_n: createOp((r, m) => { cp(r, m.rb(r.pc++)); }, 2),
 
   INC_A: createOp((r) => { inc(r, 'a'); }, 1),
@@ -383,7 +390,7 @@ const o = {
   DEC_E: createOp((r) => { dec(r, 'e'); }, 1),
   DEC_H: createOp((r) => { dec(r, 'h'); }, 1),
   DEC_L: createOp((r) => { dec(r, 'l'); }, 1),
-  DEC_HL: createOp((r, m) => {
+  DEC_HLM: createOp((r, m) => {
     const i = r.h << 8 + r.l;
     const v = (m.rb(i) - 1) & 255;
     m.wb(i, v);
@@ -560,7 +567,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_HLD_A,
   o.INC_SP,
   o.INC_HL,
-  o.DEC_HL,
+  o.DEC_HLM,
   o.LD_HL_n,
   undefined,
   undefined,
@@ -651,7 +658,7 @@ const oMap: (IOperation | undefined)[] = [
   o.ADD_E,
   o.ADD_H,
   o.ADD_L,
-  o.ADD_HL,
+  o.ADD_HLM,
   o.ADD_A,
   o.ADC_B,
   o.ADC_C,
@@ -659,7 +666,7 @@ const oMap: (IOperation | undefined)[] = [
   o.ADC_E,
   o.ADC_H,
   o.ADC_L,
-  o.ADC_HL,
+  o.ADC_HLM,
   o.ADC_A,
 
   // 90
@@ -669,7 +676,7 @@ const oMap: (IOperation | undefined)[] = [
   o.SUB_E,
   o.SUB_H,
   o.SUB_L,
-  o.SUB_HL,
+  o.SUB_HLM,
   o.SUB_A,
   o.SBC_B,
   o.SBC_C,
@@ -677,7 +684,7 @@ const oMap: (IOperation | undefined)[] = [
   o.SBC_E,
   o.SBC_H,
   o.SBC_L,
-  o.SBC_HL,
+  o.SBC_HLM,
   o.SBC_A,
 
   // A0
@@ -687,7 +694,7 @@ const oMap: (IOperation | undefined)[] = [
   o.AND_E,
   o.AND_H,
   o.AND_L,
-  o.AND_HL,
+  o.AND_HLM,
   o.AND_A,
   o.XOR_B,
   o.XOR_C,
@@ -695,7 +702,7 @@ const oMap: (IOperation | undefined)[] = [
   o.XOR_E,
   o.XOR_H,
   o.XOR_L,
-  o.XOR_HL,
+  o.XOR_HLM,
   o.XOR_A,
 
   // B0
@@ -705,7 +712,7 @@ const oMap: (IOperation | undefined)[] = [
   o.OR_E,
   o.OR_H,
   o.OR_L,
-  o.OR_HL,
+  o.OR_HLM,
   o.OR_A,
   o.CP_B,
   o.CP_C,
@@ -713,7 +720,7 @@ const oMap: (IOperation | undefined)[] = [
   o.CP_E,
   o.CP_H,
   o.CP_L,
-  o.CP_HL,
+  o.CP_HLM,
   o.CP_A,
 
   // C0
