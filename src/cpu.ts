@@ -390,6 +390,11 @@ const o = {
     resetFlags(r, v);
   }, 3),
 
+  ADD_HL_BC: createOp((r) => { addHl(r, r.b << 8 + r.c); }, 2),
+  ADD_HL_DE: createOp((r) => { addHl(r, r.d << 8 + r.e); }, 2),
+  ADD_HL_HL: createOp((r) => { addHl(r, r.h << 8 + r.l); }, 2),
+  ADD_HL_SP: createOp((r) => { addHl(r, r.sp); }, 2),
+
   NOP: createOp(() => {}, 1)
 }
 
@@ -457,6 +462,16 @@ function cp(r: IRegisterSet, value: number) {
   // TODO: Impl H?
 }
 
+function addHl(r: IRegisterSet, value: number) {
+  const hl = r.h << 8 + r.l + value;
+  // TODO: Don't reset Z?
+  // TODO: Implement H?
+  r.f = 0;
+  if (hl > 65535) {
+    r.f |= Flags.C;
+  }
+}
+
 const oMap: (IOperation | undefined)[] = [
   // 00
   o.NOP,
@@ -468,7 +483,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_B_n,
   undefined,
   o.LD_nn_SP,
-  undefined,
+  o.ADD_HL_BC,
   o.LD_A_BC,
   undefined,
   o.INC_C,
@@ -486,7 +501,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_D_n,
   undefined,
   undefined,
-  undefined,
+  o.ADD_HL_DE,
   o.LD_A_DE,
   undefined,
   o.INC_E,
@@ -504,7 +519,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_H_n,
   undefined,
   undefined,
-  undefined,
+  o.ADD_HL_HL,
   o.LD_A_HLI,
   undefined,
   o.INC_L,
@@ -522,7 +537,7 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_HL_n,
   undefined,
   undefined,
-  undefined,
+  o.ADD_HL_SP,
   o.LD_A_HLD,
   undefined,
   o.INC_A,
