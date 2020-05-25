@@ -6,6 +6,9 @@ interface IClock {
 }
 
 interface IRegisterSet {
+  /**
+   * The accumulator register, this is specially used for logic and arithmetic.
+   */
   a: number;
   b: number;
   c: number;
