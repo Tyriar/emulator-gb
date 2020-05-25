@@ -279,75 +279,75 @@ const o = {
   POP_DE: createOp((r, m) => { r.e = m.rb(r.sp++); r.d = m.rb(r.sp++); }, 3),
   POP_HL: createOp((r, m) => { r.l = m.rb(r.sp++); r.h = m.rb(r.sp++); }, 3),
 
-  ADD_A_A: createOp((r, m) => { addA(r, r.a); }, 1),
-  ADD_A_B: createOp((r, m) => { addA(r, r.b); }, 1),
-  ADD_A_C: createOp((r, m) => { addA(r, r.c); }, 1),
-  ADD_A_D: createOp((r, m) => { addA(r, r.d); }, 1),
-  ADD_A_E: createOp((r, m) => { addA(r, r.e); }, 1),
-  ADD_A_H: createOp((r, m) => { addA(r, r.h); }, 1),
-  ADD_A_L: createOp((r, m) => { addA(r, r.l); }, 1),
-  ADD_A_HL: createOp((r, m) => { addA(r, m.rb(r.h << 8 + r.l)); }, 2),
-  ADD_A_n: createOp((r, m) => { addA(r, m.rb(r.pc++)); }, 2),
+  ADD_A: createOp((r, m) => { add(r, r.a); }, 1),
+  ADD_B: createOp((r, m) => { add(r, r.b); }, 1),
+  ADD_C: createOp((r, m) => { add(r, r.c); }, 1),
+  ADD_D: createOp((r, m) => { add(r, r.d); }, 1),
+  ADD_E: createOp((r, m) => { add(r, r.e); }, 1),
+  ADD_H: createOp((r, m) => { add(r, r.h); }, 1),
+  ADD_L: createOp((r, m) => { add(r, r.l); }, 1),
+  ADD_HL: createOp((r, m) => { add(r, m.rb(r.h << 8 + r.l)); }, 2),
+  ADD_n: createOp((r, m) => { add(r, m.rb(r.pc++)); }, 2),
 
-  ADC_A_A: createOp((r, m) => { addA(r, r.a + (r.f & Flags.C ? 1 : 0)); }, 1),
-  ADC_A_B: createOp((r, m) => { addA(r, r.b + (r.f & Flags.C ? 1 : 0)); }, 1),
-  ADC_A_C: createOp((r, m) => { addA(r, r.c + (r.f & Flags.C ? 1 : 0)); }, 1),
-  ADC_A_D: createOp((r, m) => { addA(r, r.d + (r.f & Flags.C ? 1 : 0)); }, 1),
-  ADC_A_E: createOp((r, m) => { addA(r, r.e + (r.f & Flags.C ? 1 : 0)); }, 1),
-  ADC_A_H: createOp((r, m) => { addA(r, r.h + (r.f & Flags.C ? 1 : 0)); }, 1),
-  ADC_A_L: createOp((r, m) => { addA(r, r.l + (r.f & Flags.C ? 1 : 0)); }, 1),
-  ADC_A_HL: createOp((r, m) => { addA(r, m.rb(r.h << 8 + r.l) + (r.f & Flags.C ? 1 : 0)); }, 2),
-  ADC_A_n: createOp((r, m) => { addA(r, m.rb(r.pc++) + (r.f & Flags.C ? 1 : 0)); }, 2),
+  ADC_A: createOp((r, m) => { add(r, r.a + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_B: createOp((r, m) => { add(r, r.b + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_C: createOp((r, m) => { add(r, r.c + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_D: createOp((r, m) => { add(r, r.d + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_E: createOp((r, m) => { add(r, r.e + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_H: createOp((r, m) => { add(r, r.h + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_L: createOp((r, m) => { add(r, r.l + (r.f & Flags.C ? 1 : 0)); }, 1),
+  ADC_HL: createOp((r, m) => { add(r, m.rb(r.h << 8 + r.l) + (r.f & Flags.C ? 1 : 0)); }, 2),
+  ADC_n: createOp((r, m) => { add(r, m.rb(r.pc++) + (r.f & Flags.C ? 1 : 0)); }, 2),
 
-  SUB_A_A: createOp((r, m) => { subA(r, r.a); }, 1),
-  SUB_A_B: createOp((r, m) => { subA(r, r.b); }, 1),
-  SUB_A_C: createOp((r, m) => { subA(r, r.c); }, 1),
-  SUB_A_D: createOp((r, m) => { subA(r, r.d); }, 1),
-  SUB_A_E: createOp((r, m) => { subA(r, r.e); }, 1),
-  SUB_A_H: createOp((r, m) => { subA(r, r.h); }, 1),
-  SUB_A_L: createOp((r, m) => { subA(r, r.l); }, 1),
-  SUB_A_HL: createOp((r, m) => { subA(r, m.rb(r.h << 8 + r.l)); }, 2),
-  SUB_A_n: createOp((r, m) => { subA(r, m.rb(r.pc++)); }, 2),
+  SUB_A: createOp((r, m) => { sub(r, r.a); }, 1),
+  SUB_B: createOp((r, m) => { sub(r, r.b); }, 1),
+  SUB_C: createOp((r, m) => { sub(r, r.c); }, 1),
+  SUB_D: createOp((r, m) => { sub(r, r.d); }, 1),
+  SUB_E: createOp((r, m) => { sub(r, r.e); }, 1),
+  SUB_H: createOp((r, m) => { sub(r, r.h); }, 1),
+  SUB_L: createOp((r, m) => { sub(r, r.l); }, 1),
+  SUB_HL: createOp((r, m) => { sub(r, m.rb(r.h << 8 + r.l)); }, 2),
+  SUB_n: createOp((r, m) => { sub(r, m.rb(r.pc++)); }, 2),
 
-  SBC_A_A: createOp((r, m) => { subA(r, r.a + (r.f & Flags.C ? 1 : 0)); }, 1),
-  SBC_A_B: createOp((r, m) => { subA(r, r.b + (r.f & Flags.C ? 1 : 0)); }, 1),
-  SBC_A_C: createOp((r, m) => { subA(r, r.c + (r.f & Flags.C ? 1 : 0)); }, 1),
-  SBC_A_D: createOp((r, m) => { subA(r, r.d + (r.f & Flags.C ? 1 : 0)); }, 1),
-  SBC_A_E: createOp((r, m) => { subA(r, r.e + (r.f & Flags.C ? 1 : 0)); }, 1),
-  SBC_A_H: createOp((r, m) => { subA(r, r.h + (r.f & Flags.C ? 1 : 0)); }, 1),
-  SBC_A_L: createOp((r, m) => { subA(r, r.l + (r.f & Flags.C ? 1 : 0)); }, 1),
-  SBC_A_HL: createOp((r, m) => { subA(r, m.rb(r.h << 8 + r.l) + (r.f & Flags.C ? 1 : 0)); }, 2),
-  // SBC_A_n not needed?
+  SBC_A: createOp((r, m) => { sub(r, r.a + (r.f & Flags.C ? 1 : 0)); }, 1),
+  SBC_B: createOp((r, m) => { sub(r, r.b + (r.f & Flags.C ? 1 : 0)); }, 1),
+  SBC_C: createOp((r, m) => { sub(r, r.c + (r.f & Flags.C ? 1 : 0)); }, 1),
+  SBC_D: createOp((r, m) => { sub(r, r.d + (r.f & Flags.C ? 1 : 0)); }, 1),
+  SBC_E: createOp((r, m) => { sub(r, r.e + (r.f & Flags.C ? 1 : 0)); }, 1),
+  SBC_H: createOp((r, m) => { sub(r, r.h + (r.f & Flags.C ? 1 : 0)); }, 1),
+  SBC_L: createOp((r, m) => { sub(r, r.l + (r.f & Flags.C ? 1 : 0)); }, 1),
+  SBC_HL: createOp((r, m) => { sub(r, m.rb(r.h << 8 + r.l) + (r.f & Flags.C ? 1 : 0)); }, 2),
+  // SBC_n not needed?
 
-  AND_A_A: createOp((r, m) => { andA(r, r.a); }, 1),
-  AND_A_B: createOp((r, m) => { andA(r, r.b); }, 1),
-  AND_A_C: createOp((r, m) => { andA(r, r.c); }, 1),
-  AND_A_D: createOp((r, m) => { andA(r, r.d); }, 1),
-  AND_A_E: createOp((r, m) => { andA(r, r.e); }, 1),
-  AND_A_H: createOp((r, m) => { andA(r, r.h); }, 1),
-  AND_A_L: createOp((r, m) => { andA(r, r.l); }, 1),
-  AND_A_HL: createOp((r, m) => { andA(r, m.rb(r.h << 8 + r.l)); }, 1),
-  AND_A_n: createOp((r, m) => { andA(r, m.rb(r.pc++)); }, 1),
+  AND_A: createOp((r, m) => { and(r, r.a); }, 1),
+  AND_B: createOp((r, m) => { and(r, r.b); }, 1),
+  AND_C: createOp((r, m) => { and(r, r.c); }, 1),
+  AND_D: createOp((r, m) => { and(r, r.d); }, 1),
+  AND_E: createOp((r, m) => { and(r, r.e); }, 1),
+  AND_H: createOp((r, m) => { and(r, r.h); }, 1),
+  AND_L: createOp((r, m) => { and(r, r.l); }, 1),
+  AND_HL: createOp((r, m) => { and(r, m.rb(r.h << 8 + r.l)); }, 1),
+  AND_n: createOp((r, m) => { and(r, m.rb(r.pc++)); }, 1),
 
-  OR_A_A: createOp((r, m) => { orA(r, r.a); }, 1),
-  OR_A_B: createOp((r, m) => { orA(r, r.b); }, 1),
-  OR_A_C: createOp((r, m) => { orA(r, r.c); }, 1),
-  OR_A_D: createOp((r, m) => { orA(r, r.d); }, 1),
-  OR_A_E: createOp((r, m) => { orA(r, r.e); }, 1),
-  OR_A_H: createOp((r, m) => { orA(r, r.h); }, 1),
-  OR_A_L: createOp((r, m) => { orA(r, r.l); }, 1),
-  OR_A_HL: createOp((r, m) => { orA(r, m.rb(r.h << 8 + r.l)); }, 1),
-  OR_A_n: createOp((r, m) => { orA(r, m.rb(r.pc++)); }, 1),
+  OR_A: createOp((r, m) => { or(r, r.a); }, 1),
+  OR_B: createOp((r, m) => { or(r, r.b); }, 1),
+  OR_C: createOp((r, m) => { or(r, r.c); }, 1),
+  OR_D: createOp((r, m) => { or(r, r.d); }, 1),
+  OR_E: createOp((r, m) => { or(r, r.e); }, 1),
+  OR_H: createOp((r, m) => { or(r, r.h); }, 1),
+  OR_L: createOp((r, m) => { or(r, r.l); }, 1),
+  OR_HL: createOp((r, m) => { or(r, m.rb(r.h << 8 + r.l)); }, 1),
+  OR_n: createOp((r, m) => { or(r, m.rb(r.pc++)); }, 1),
 
-  XOR_A_A: createOp((r, m) => { xorA(r, r.a); }, 1),
-  XOR_A_B: createOp((r, m) => { xorA(r, r.b); }, 1),
-  XOR_A_C: createOp((r, m) => { xorA(r, r.c); }, 1),
-  XOR_A_D: createOp((r, m) => { xorA(r, r.d); }, 1),
-  XOR_A_E: createOp((r, m) => { xorA(r, r.e); }, 1),
-  XOR_A_H: createOp((r, m) => { xorA(r, r.h); }, 1),
-  XOR_A_L: createOp((r, m) => { xorA(r, r.l); }, 1),
-  XOR_A_HL: createOp((r, m) => { xorA(r, m.rb(r.h << 8 + r.l)); }, 1),
-  XOR_A_n: createOp((r, m) => { xorA(r, m.rb(r.pc++)); }, 1),
+  XOR_A: createOp((r, m) => { xor(r, r.a); }, 1),
+  XOR_B: createOp((r, m) => { xor(r, r.b); }, 1),
+  XOR_C: createOp((r, m) => { xor(r, r.c); }, 1),
+  XOR_D: createOp((r, m) => { xor(r, r.d); }, 1),
+  XOR_E: createOp((r, m) => { xor(r, r.e); }, 1),
+  XOR_H: createOp((r, m) => { xor(r, r.h); }, 1),
+  XOR_L: createOp((r, m) => { xor(r, r.l); }, 1),
+  XOR_HL: createOp((r, m) => { xor(r, m.rb(r.h << 8 + r.l)); }, 1),
+  XOR_n: createOp((r, m) => { xor(r, m.rb(r.pc++)); }, 1),
 
   CP_A: createOp((r, m) => { cp(r, r.a); }, 1),
   CP_B: createOp((r, m) => { cp(r, r.b); }, 1),
@@ -374,7 +374,7 @@ function resetFlags(r: IRegisterSet, result: number) {
 }
 
 // TODO: This is meant to set H if carry from bit 3
-function addA(r: IRegisterSet, value: number) {
+function add(r: IRegisterSet, value: number) {
   r.a += value;
   resetFlags(r, r.a);
   if (r.a > 255) {
@@ -384,7 +384,7 @@ function addA(r: IRegisterSet, value: number) {
 }
 
 // TODO: This is meant to set H no borrow from bit 4
-function subA(r: IRegisterSet, value: number) {
+function sub(r: IRegisterSet, value: number) {
   r.a -= value;
   resetFlags(r, r.a);
   r.f |= Flags.N;
@@ -394,7 +394,7 @@ function subA(r: IRegisterSet, value: number) {
   r.a &= 255;
 }
 
-function andA(r: IRegisterSet, value: number) {
+function and(r: IRegisterSet, value: number) {
   r.a &= value;
   resetFlags(r, r.a);
   if (r.a > 255) {
@@ -404,13 +404,13 @@ function andA(r: IRegisterSet, value: number) {
   r.a &= 255;
 }
 
-function orA(r: IRegisterSet, value: number) {
+function or(r: IRegisterSet, value: number) {
   r.a |= value;
   resetFlags(r, r.a);
   r.a &= 255;
 }
 
-function xorA(r: IRegisterSet, value: number) {
+function xor(r: IRegisterSet, value: number) {
   r.a ^= value;
   resetFlags(r, r.a);
   r.a &= 255;
@@ -571,68 +571,68 @@ const oMap: (IOperation | undefined)[] = [
   o.LD_A_A,
 
   // 80
-  o.ADD_A_B,
-  o.ADD_A_C,
-  o.ADD_A_D,
-  o.ADD_A_E,
-  o.ADD_A_H,
-  o.ADD_A_L,
-  o.ADD_A_HL,
-  o.ADD_A_A,
-  o.ADC_A_B,
-  o.ADC_A_C,
-  o.ADC_A_D,
-  o.ADC_A_E,
-  o.ADC_A_H,
-  o.ADC_A_L,
-  o.ADC_A_HL,
-  o.ADC_A_A,
+  o.ADD_B,
+  o.ADD_C,
+  o.ADD_D,
+  o.ADD_E,
+  o.ADD_H,
+  o.ADD_L,
+  o.ADD_HL,
+  o.ADD_A,
+  o.ADC_B,
+  o.ADC_C,
+  o.ADC_D,
+  o.ADC_E,
+  o.ADC_H,
+  o.ADC_L,
+  o.ADC_HL,
+  o.ADC_A,
 
   // 90
-  o.SUB_A_B,
-  o.SUB_A_C,
-  o.SUB_A_D,
-  o.SUB_A_E,
-  o.SUB_A_H,
-  o.SUB_A_L,
-  o.SUB_A_HL,
-  o.SUB_A_A,
-  o.SBC_A_B,
-  o.SBC_A_C,
-  o.SBC_A_D,
-  o.SBC_A_E,
-  o.SBC_A_H,
-  o.SBC_A_L,
-  o.SBC_A_HL,
-  o.SBC_A_A,
+  o.SUB_B,
+  o.SUB_C,
+  o.SUB_D,
+  o.SUB_E,
+  o.SUB_H,
+  o.SUB_L,
+  o.SUB_HL,
+  o.SUB_A,
+  o.SBC_B,
+  o.SBC_C,
+  o.SBC_D,
+  o.SBC_E,
+  o.SBC_H,
+  o.SBC_L,
+  o.SBC_HL,
+  o.SBC_A,
 
   // A0
-  o.AND_A_B,
-  o.AND_A_C,
-  o.AND_A_D,
-  o.AND_A_E,
-  o.AND_A_H,
-  o.AND_A_L,
-  o.AND_A_HL,
-  o.AND_A_A,
-  o.XOR_A_B,
-  o.XOR_A_C,
-  o.XOR_A_D,
-  o.XOR_A_E,
-  o.XOR_A_H,
-  o.XOR_A_L,
-  o.XOR_A_HL,
-  o.XOR_A_A,
+  o.AND_B,
+  o.AND_C,
+  o.AND_D,
+  o.AND_E,
+  o.AND_H,
+  o.AND_L,
+  o.AND_HL,
+  o.AND_A,
+  o.XOR_B,
+  o.XOR_C,
+  o.XOR_D,
+  o.XOR_E,
+  o.XOR_H,
+  o.XOR_L,
+  o.XOR_HL,
+  o.XOR_A,
 
   // B0
-  o.OR_A_B,
-  o.OR_A_C,
-  o.OR_A_D,
-  o.OR_A_E,
-  o.OR_A_H,
-  o.OR_A_L,
-  o.OR_A_HL,
-  o.OR_A_A,
+  o.OR_B,
+  o.OR_C,
+  o.OR_D,
+  o.OR_E,
+  o.OR_H,
+  o.OR_L,
+  o.OR_HL,
+  o.OR_A,
   o.CP_B,
   o.CP_C,
   o.CP_D,
@@ -649,7 +649,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   undefined,
   o.PUSH_BC,
-  o.ADD_A_n,
+  o.ADD_n,
   undefined,
   undefined,
   undefined,
@@ -657,7 +657,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   undefined,
   undefined,
-  o.ADC_A_n,
+  o.ADC_n,
   undefined,
 
   // D0
@@ -667,7 +667,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   undefined,
   o.PUSH_DE,
-  o.SUB_A_n,
+  o.SUB_n,
   undefined,
   undefined,
   undefined,
@@ -685,7 +685,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   undefined,
   o.PUSH_HL,
-  o.AND_A_n,
+  o.AND_n,
   undefined,
   undefined,
   undefined,
@@ -693,7 +693,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   undefined,
   undefined,
-  o.XOR_A_n,
+  o.XOR_n,
   undefined,
 
   // F0
@@ -703,7 +703,7 @@ const oMap: (IOperation | undefined)[] = [
   undefined,
   undefined,
   o.PUSH_AF,
-  o.OR_A_n,
+  o.OR_n,
   undefined,
   o.LD_HL_SPn,
   o.LD_SP_HL,
