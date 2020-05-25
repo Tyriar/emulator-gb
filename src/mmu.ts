@@ -1,6 +1,9 @@
-import { IMemory } from './interfaces';
+import { IMemory as IMmu } from './interfaces';
 
-export class Memory implements IMemory {
+/**
+ * The memory management unit.
+ */
+export class Mmu implements IMmu {
   /** Read byte */
   rb(address: number) {
     return 0;

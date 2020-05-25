@@ -94,6 +94,17 @@ export class Cpu {
     this._r.sp = 0;
     this._c = 0;
   }
+
+  cycle(m: IMemory) {
+    const opcode = m.rb(this._r.pc++);
+    const op = oMap[opcode];
+    if (op) {
+      const cycles = op(this._r, m);
+      this._c += cycles;
+    } else {
+      throw new Error(`opcode 0x${opcode.toString(16)} not implemented`);
+    }
+  }
 }
 
 type IOperation = (r: IRegisterSet, m: IMemory) => number;
